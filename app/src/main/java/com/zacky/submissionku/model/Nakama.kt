@@ -11,9 +11,9 @@ import kotlinx.parcelize.Parcelize
 data class Nakama(
     @PrimaryKey
     val id: String,
-    val name: String?,
-    val description: String?,
-    val imgUrl: String?,
+    val name: String,
+    val description: String,
+    val imgUrl: String,
 ) : Parcelable
 
 val nakamas = arrayListOf(

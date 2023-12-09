@@ -6,14 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zacky.submissionku.model.Nakama
 import com.zacky.submissionku.repository.NakamaRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class ListViewModel @Inject constructor (private val nakamaRepository: NakamaRepository) : ViewModel() {
+class ListViewModel(private val nakamaRepository: NakamaRepository) : ViewModel() {
     private val _nakamas = MutableLiveData<List<Nakama>>()
     val nakamas: LiveData<List<Nakama>> get() = _nakamas
 
@@ -23,10 +20,7 @@ class ListViewModel @Inject constructor (private val nakamaRepository: NakamaRep
     private val _isEmpty = MutableLiveData<Boolean>()
     val isEmpty: LiveData<Boolean> get() = _isEmpty
 
-    private val _favoriteNakamas = MutableLiveData<List<Nakama>>()
-    val favoriteTroops: LiveData<List<Nakama>> get() = _favoriteNakamas
-
-    fun loadTroops() {
+    fun loadNakama() {
         _isLoading.value = true
 
         viewModelScope.launch {
@@ -34,8 +28,13 @@ class ListViewModel @Inject constructor (private val nakamaRepository: NakamaRep
                 val nakamaList = withContext(Dispatchers.IO) {
                     nakamaRepository.getNakamas()
                 }
-                _nakamas.value = nakamaList
-                _isEmpty.value = nakamaList.isEmpty()
+
+                if (nakamaList.isNullOrEmpty()) {
+                    _isEmpty.value = true
+                } else {
+                    _nakamas.value = nakamaList
+                    _isEmpty.value = false
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

@@ -6,30 +6,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.zacky.submissionku.di.Injection
+import com.zacky.submissionku.navigation.Screen
 import com.zacky.submissionku.ui.component.NakamaItem
 import com.zacky.submissionku.ui.viewmodel.ListViewModel
+import com.zacky.submissionku.ui.viewmodel.ViewModelFactory
 
 @Composable
-fun ListScreen() {
-    val viewModel: ListViewModel = hiltViewModel()
+fun ListScreen(
+    viewModel: ListViewModel = viewModel(
+        factory = ViewModelFactory(Injection.provideRepository())
+    ),
+    navigateToDetail: (String) -> Unit
+) {
     val nakamas by viewModel.nakamas.observeAsState(emptyList())
-    val isLoading by viewModel.isLoading.observeAsState(false)
-    val isEmpty by viewModel.isEmpty.observeAsState(false)
-    val favoriteNakamas by viewModel.favoriteTroops.observeAsState(emptyList())
 
-    // Trigger the loading of Nakamas when the screen is first displayed
     LaunchedEffect(Unit) {
-        viewModel.loadTroops()
+        viewModel.loadNakama()
     }
 
-    // Use LazyColumn to efficiently display a list of items
     LazyColumn {
         items(nakamas) { nakama ->
-            NakamaItem(nakama = nakama) {
-                // Handle item click if needed
-            }
+            NakamaItem(nakama = nakama, onClick = {
+                navigateToDetail(Screen.Detail.createRoute(nakama.id))
+            })
         }
     }
 }

@@ -1,30 +1,48 @@
 package com.zacky.submissionku.repository
 
-import com.zacky.submissionku.database.FavoriteDao
 import com.zacky.submissionku.model.Nakama
 import com.zacky.submissionku.model.nakamas
-import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class NakamaRepository @Inject constructor(private val mFavoriteDao: FavoriteDao) {
+class NakamaRepository() {
 
     fun getNakamas(): List<Nakama> {
         return nakamas
     }
 
-    suspend fun getFavoriteNakama(): List<Nakama> = mFavoriteDao.getFavoriteNakama()
+    private val nakamaList = mutableListOf<Nakama>()
 
-    suspend fun insertToFavorite(nakama: Nakama) {
-        mFavoriteDao.insertFavoriteNakama(nakama)
+    init {
+        if (nakamaList.isEmpty()) {
+            nakamas.forEach() {
+                nakamaList.add(it)
+            }
+        }
     }
 
-    suspend fun deleteFromNakama(nakama: Nakama) {
-        mFavoriteDao.deleteFavoriteNakama(nakama)
+
+    fun getNakamaById(id: String): Nakama {
+            return nakamaList.firstOrNull { it.id == id }
+                ?: throw NoSuchElementException("Nakama with ID $id not found")
     }
 
-    suspend fun checkIsFavoriteById(id: String): Boolean {
-        return mFavoriteDao.getNakamaById(id).any()
-    }
+    fun getInstance(): NakamaRepository =
+        instance ?: synchronized(this) {
+            NakamaRepository().apply {
+                instance = this
+            }
+        }
 
+    companion object {
+        @Volatile
+        private var instance: NakamaRepository? = null
+
+        fun getInstance(): NakamaRepository =
+            instance ?: synchronized(this) {
+                NakamaRepository().apply {
+                    instance = this
+                }
+            }
+    }
 }

@@ -27,7 +27,7 @@ fun NakamaItem(nakama: Nakama, onClick: () -> Unit) {
         .fillMaxWidth()
         .height(150.dp)
         .padding(8.dp)
-        .clickable { }) {
+        .clickable { onClick() }) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
